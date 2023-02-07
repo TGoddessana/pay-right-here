@@ -1,0 +1,5 @@
+-r default.txt
+
+black
+isort
+django-debug-toolbar
