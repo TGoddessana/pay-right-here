@@ -1,5 +1,5 @@
 from pay_right_here.accountbook.models import AccountBook
-from pay_right_here.accountbook.serializers import AccountBookListSerializer
+from pay_right_here.accountbook.serializers import AccountBookSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import generics
 
@@ -7,7 +7,7 @@ from rest_framework import generics
 class AccountBookListAPIView(generics.ListCreateAPIView):
     """가계부 리소스 목록에 대한 View 입니다."""
 
-    serializer_class = AccountBookListSerializer
+    serializer_class = AccountBookSerializer
 
     def get_queryset(self):
         user_id = JWTAuthentication().authenticate(request=self.request)[0].id
@@ -28,8 +28,15 @@ class AccountBookListAPIView(generics.ListCreateAPIView):
 class AccountBookDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     """가계부 리소스 상세에 대한 View 입니다."""
 
-    serializer_class = AccountBookListSerializer
+    serializer_class = AccountBookSerializer
 
     def get_queryset(self):
         user_id = JWTAuthentication().authenticate(request=self.request)[0].id
         return AccountBook.objects.filter(user_id=user_id)
+
+
+#
+# class AccountBookHistoryListAPIView(generics.ListCreateAPIView):
+#     """가계부 작성내역 상세에 대한 View 입니다."""
+#
+#     serializer_class =
