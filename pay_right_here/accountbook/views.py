@@ -5,6 +5,8 @@ from rest_framework import generics
 
 
 class AccountBookListAPIView(generics.ListCreateAPIView):
+    """가계부 리소스 목록에 대한 View 입니다."""
+
     serializer_class = AccountBookListSerializer
 
     def get_queryset(self):
@@ -24,6 +26,8 @@ class AccountBookListAPIView(generics.ListCreateAPIView):
 
 
 class AccountBookDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    """가계부 리소스 상세에 대한 View 입니다."""
+
     serializer_class = AccountBookListSerializer
 
     def get_queryset(self):
