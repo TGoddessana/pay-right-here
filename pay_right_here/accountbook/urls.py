@@ -1,10 +1,7 @@
-from django.urls import path, include
-from rest_framework.routers import SimpleRouter
+from django.urls import path
 from pay_right_here.accountbook import views
 
-router = SimpleRouter()
-router.register("", views.AccountBookViewSet, basename="AccountBook")
 
 urlpatterns = [
-    path("", include(router.urls)),
+    path("", views.AccountBookListAPIView.as_view(), name="AccountBook-list")
 ]

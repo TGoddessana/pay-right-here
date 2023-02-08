@@ -1,13 +1,10 @@
-from rest_framework.permissions import AllowAny
-from rest_framework.viewsets import ModelViewSet
 from pay_right_here.accountbook.models import AccountBook
 from pay_right_here.accountbook.serializers import AccountBookListSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework import generics
 
-from pprint import pprint
 
-
-class AccountBookViewSet(ModelViewSet):
+class AccountBookListAPIView(generics.ListCreateAPIView):
     serializer_class = AccountBookListSerializer
 
     def get_queryset(self):
