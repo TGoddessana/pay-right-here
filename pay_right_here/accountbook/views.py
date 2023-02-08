@@ -21,3 +21,11 @@ class AccountBookListAPIView(generics.ListCreateAPIView):
         context = super().get_serializer_context()
         context["request"] = self.request
         return
+
+
+class AccountBookDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = AccountBookListSerializer
+
+    def get_queryset(self):
+        user_id = JWTAuthentication().authenticate(request=self.request)[0].id
+        return AccountBook.objects.filter(user_id=user_id)
