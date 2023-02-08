@@ -19,12 +19,10 @@ class AccountBook(TimestampedModel):
     가계부 모델입니다.
     각각의 필드는 아래의 의미를 가집니다.
 
-    - uuid : 가계부 한 권에 대한 유일한 uuid
     - user : 가계부 작성자
     - title : 가계부 제목
     """
 
-    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=20)
 
