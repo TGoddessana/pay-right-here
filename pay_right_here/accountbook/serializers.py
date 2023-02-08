@@ -2,7 +2,7 @@ from rest_framework import serializers
 from pay_right_here.accountbook.models import AccountBook, AccountBookHistory
 
 
-class AccountBookListSerializer(serializers.ModelSerializer):
+class AccountBookSerializer(serializers.ModelSerializer):
     """가계부 목록에 대한 직렬화&역직렬화 규칙을 정의합니다."""
 
     class Meta:
@@ -16,13 +16,11 @@ class AccountBookListSerializer(serializers.ModelSerializer):
         }
 
 
-class AccountBookDetailSerializer(serializers.ModelSerializer):
-    """가계부 상세에 대한 직렬화&역직렬화 규칙을 정의합니다."""
+class AccountBookHistoryListSerializer(serializers.ModelSerializer):
+    """가계부 작성내역 목록에 대한 직렬화/역직렬화 규칙을 정의합니다."""
 
     class Meta:
-        model = AccountBook
-        fields = [""]
+        model = AccountBookHistory
+        filds = "__all__"
 
-
-class AccountBookHistorySerializer(serializers.ModelSerializer):
     pass
