@@ -46,7 +46,7 @@
 ### Built With
 
 프로젝트에서 사용된 기술 스택을 소개합니다.  
-Python 3.11, Django 4.1, MySQL 5.7 환경에서 개발되었습니다.
+Python 3.11, Django 4.1 환경에서 개발되었습니다.
 
 * [![Python3][Python3]][Python3-url]
 * [![Django][Django]][Django-url]
@@ -97,7 +97,14 @@ Python 3.11, Django 4.1, MySQL 5.7 환경에서 개발되었습니다.
 ## Roadmap
 
 - [ ] 이메일, 비밀번호를 통한 회원가입 구현
+    - [X] Django 기본 사용자 모델이 아닌 커스텀 유저 모델 생성하기
+    - [X] `POST /api/v1/accounts/register/` 로 회원가입 API 구현하기
+- [ ] 회원탈퇴 구현
+    - [ ] JWT 와 함께 request 를 받았을 때에만, 본인만 회원탈퇴가 가능하도록 구현하기    
 - [ ] JWT 인증을 통한 로그인 & 로그아웃 구현
+    - [ ] `POST /api/v1/jwtauth/login/` 로 로그인 API 구현하기 (`access token` 발급)
+    - [ ] `POST /api/v1/jwtauth/refresh/` 로 로그인 API 구현하기 (`access token` 재발급)
+    - [ ] `POST /api/v1/jwtauth/logout/` 로 로그아웃 API 구현하기 (블랙리스트)
 - [ ] 가계부 서비스 구현
     - [ ] 가계부에 오늘 사용한 돈의 금액과 관련된 메모를 남길 수 있습니다. 
     - [ ] 가계부에서 수정을 원하는 내역은 금액과 메모를 수정 할 수 있습니다.
