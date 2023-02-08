@@ -9,7 +9,6 @@ class AccountBookListSerializer(serializers.ModelSerializer):
         model = AccountBook
         fields = [
             "id",
-            "user",
             "title",
         ]
         extra_kwargs = {
