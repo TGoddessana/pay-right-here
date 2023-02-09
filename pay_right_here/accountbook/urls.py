@@ -7,4 +7,9 @@ urlpatterns = [
     path(
         "<int:pk>/", views.AccountBookDetailAPIView.as_view(), name="AccountBook-detail"
     ),
+    path(
+        "<int:pk>/histories/",
+        views.AccountBookHistoryListAPIView.as_view(),
+        name="AccountBookHistory-list",
+    ),
 ]

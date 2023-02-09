@@ -1,7 +1,13 @@
-from pay_right_here.accountbook.models import AccountBook
-from pay_right_here.accountbook.serializers import AccountBookSerializer
+from rest_framework.generics import get_object_or_404
+from pay_right_here.accountbook.models import AccountBook, AccountBookHistory
+from pay_right_here.accountbook.serializers import (
+    AccountBookSerializer,
+    AccountBookHistoryListSerializer,
+)
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import generics
+
+from pay_right_here.accountbook.permissions import AccountBookHistoryPermission
 
 
 class AccountBookListAPIView(generics.ListCreateAPIView):
@@ -35,8 +41,20 @@ class AccountBookDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         return AccountBook.objects.filter(user_id=user_id)
 
 
-#
-# class AccountBookHistoryListAPIView(generics.ListCreateAPIView):
-#     """가계부 작성내역 상세에 대한 View 입니다."""
-#
-#     serializer_class =
+class AccountBookHistoryListAPIView(generics.ListCreateAPIView):
+    """가계부 작성내역 목록에 대한 View 입니다."""
+
+    permission_classes = [
+        AccountBookHistoryPermission,
+    ]
+    serializer_class = AccountBookHistoryListSerializer
+
+    def get_queryset(self):
+        user_id = JWTAuthentication().authenticate(request=self.request)[0].id
+        accountbook_id = self.kwargs.get("pk")
+        # 가계부 인스턴스가 존재하지 않으면, 404 Error
+        get_object_or_404(AccountBook, id=accountbook_id)
+
+        return AccountBookHistory.objects.filter(accountbook_id=accountbook_id).filter(
+            accountbook__user_id=user_id
+        )

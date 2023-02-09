@@ -21,6 +21,4 @@ class AccountBookHistoryListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AccountBookHistory
-        filds = "__all__"
-
-    pass
+        fields = "__all__"
