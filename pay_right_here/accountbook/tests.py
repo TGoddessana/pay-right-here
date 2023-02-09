@@ -183,7 +183,7 @@ class AccountBookHistoryListTest(APITestCase):
     """가계부 작성목록의 목록조회, 생성에 대해 테스트합니다."""
 
     def setUp(self):
-        """테스트를 위해서 사용자 두 명, 가계부 3개를 생성합니다."""
+        """테스트를 위해서 사용자 두 명, 가계부 2개를 생성합니다."""
 
         # 사용자 두 명 철수와 금수 생성
         self.client = Client(enforce_csrf_checks=True)
@@ -264,16 +264,153 @@ class AccountBookHistoryListTest(APITestCase):
         # 철수 작성한 가계부 리소스(철수의 가계부 1) 를 나타내는 URL 정의
         self.url = reverse("AccountBookHistory-list", kwargs={"pk": 1})
         access_token = str(RefreshToken.for_user(self.geumsu).access_token)
-        update_data = {
+        create_data = {
             "memo": "금수가 피자를 사먹음",
             "amount": 19000,
             "accountbook": self.chulsu_accountbook_1.id,
         }
         response = self.client.post(
             f"{self.url}",
-            json.dumps(update_data),
+            json.dumps(create_data),
             HTTP_AUTHORIZATION="Bearer {}".format(access_token),
             content_type="application/json",
         )
         # 금수의 인증 정보와 URL 로 수행되어진 요청은 실패해야 합니다.
+        self.assertEqual(response.status_code, 403)
+
+
+class AccountBookHistoryDetailTest(APITestCase):
+    """가계부 작성내역의 상세조회, 수정, 삭제에 대해 테스트합니다."""
+
+    def setUp(self):
+        """테스트를 위해서 사용자 두 명, 가계부 2개, 각각 가계부에 작성내역 한 개씩을 생성합니다."""
+
+        # 사용자 두 명 철수와 금수 생성
+        self.client = Client(enforce_csrf_checks=True)
+        self.chulsu = User.objects.create_user(
+            email="example1@example.com", name="철수", password="1234"
+        )
+        self.geumsu = User.objects.create_user(
+            email="example2@example.com", name="금수", password="1234"
+        )
+
+        # 철수와 금수의 가계부 각각 하나씩 생성
+        self.chulsu_accountbook_1 = AccountBook.objects.create(
+            user=self.chulsu, title="철수의 가계부 1"
+        )
+        self.geumsu_accountbook_1 = AccountBook.objects.create(
+            user=self.geumsu, title="금수의 가계부 1"
+        )
+
+        # 각각 가계부에 작성내역 한 개씩 생성
+        self.chulsu_accounbookhistory_1 = AccountBookHistory.objects.create(
+            accountbook=self.chulsu_accountbook_1, memo="철수가 아이스크림을 사먹음", amount=-1000
+        )
+        self.geumsu_accountbookhistory_1 = AccountBookHistory.objects.create(
+            accountbook=self.geumsu_accountbook_1, memo="금수가 노트북을 삼", amount=-105000
+        )
+
+    def test_chulsuJWTDetailRequest_should_success(self):
+        """철수의 JWT 로 철수의 작성내역 상세조회 요청을 하면, 성공해야 합니다."""
+        # 철수가 작성한 작성내역 리소스(철수가 아이스크림을 사먹음) 를 나타내는 URL 정의
+        self.url = reverse(
+            "AccountBookHistory-detail", kwargs={"pk": 1, "history_pk": "1"}
+        )
+        access_token = str(RefreshToken.for_user(self.chulsu).access_token)
+        response = self.client.get(
+            f"{self.url}",
+            HTTP_AUTHORIZATION="Bearer {}".format(access_token),
+            content_type="application/json",
+        )
+        # 철수의 인증 정보와 URL 로 수행되어진 요청은 성공해야 합니다.
+        self.assertEqual(response.status_code, 200)
+
+    def test_geumsuJWTDetailRequest_should_fail(self):
+        """금수의 JWT 로 철수의 작성내역 상세조회 요청을 하면, 실패해야 합니다."""
+        # 철수가 작성한 작성내역 리소스(철수가 아이스크림을 사먹음) 를 나타내는 URL 정의
+        self.url = reverse(
+            "AccountBookHistory-detail", kwargs={"pk": 1, "history_pk": "1"}
+        )
+        access_token = str(RefreshToken.for_user(self.geumsu).access_token)
+        response = self.client.get(
+            f"{self.url}",
+            HTTP_AUTHORIZATION="Bearer {}".format(access_token),
+            content_type="application/json",
+        )
+        # 금수의 인증 정보와 URL 로 수행되어진 요청은 실패해야 합니다.
+        self.assertEqual(response.status_code, 403)
+
+    def test_chulsuJWTDetailUpdateRequest_should_success(self):
+        """철수의 JWT 로 철수의 작성내역 수정 요청을 하면, 성공해야 합니다."""
+        # 철수가 작성한 작성내역 리소스(철수가 아이스크림을 사먹음) 를 나타내는 URL 정의
+        self.url = reverse(
+            "AccountBookHistory-detail", kwargs={"pk": 1, "history_pk": "1"}
+        )
+        update_data = {
+            "memo": "철수가 아이스크림이 아니라 피자를 사먹음",
+            "amount": -19000,
+            "accountbook": self.chulsu_accountbook_1.id,
+        }
+        access_token = str(RefreshToken.for_user(self.chulsu).access_token)
+        response = self.client.put(
+            f"{self.url}",
+            update_data,
+            HTTP_AUTHORIZATION="Bearer {}".format(access_token),
+            content_type="application/json",
+        )
+        # 철수의 인증 정보와 URL 로 수행되어진 요청은 성공해야 합니다.
+        self.assertEqual(response.status_code, 200)
+
+    def test_geumsuJWTDetailUpdateRequest_should_fail(self):
+        """금수의 JWT 로 철수의 작성내역 수정 요청을 하면, 실패해야 합니다."""
+        # 철수가 작성한 작성내역 리소스(철수가 아이스크림을 사먹음) 를 나타내는 URL 정의
+        self.url = reverse(
+            "AccountBookHistory-detail", kwargs={"pk": 1, "history_pk": "1"}
+        )
+        update_data = {
+            "memo": "철수가 아이스크림이 아니라 피자를 사먹음",
+            "amount": -19000,
+            "accountbook": self.chulsu_accountbook_1.id,
+        }
+        # 철수가 아닌 금수의 JWT
+        access_token = str(RefreshToken.for_user(self.geumsu).access_token)
+        response = self.client.put(
+            f"{self.url}",
+            update_data,
+            HTTP_AUTHORIZATION="Bearer {}".format(access_token),
+            content_type="application/json",
+        )
+        # 금수의 인증 정보와 URL 로 수행되어진 요청은 실패해야 합니다.
+        self.assertEqual(response.status_code, 403)
+
+    def test_chulsuJWTDetailDeleteRequest_should_success(self):
+        """철수의 JWT 로 철수의 작성내역 삭제 요청을 하면, 성공해야 합니다."""
+        # 철수가 작성한 작성내역 리소스(철수가 아이스크림을 사먹음) 를 나타내는 URL 정의
+        self.url = reverse(
+            "AccountBookHistory-detail", kwargs={"pk": 1, "history_pk": "1"}
+        )
+        access_token = str(RefreshToken.for_user(self.chulsu).access_token)
+        response = self.client.delete(
+            f"{self.url}",
+            HTTP_AUTHORIZATION="Bearer {}".format(access_token),
+            content_type="application/json",
+        )
+        # 철수의 인증 정보와 URL 로 수행되어진 요청은 성공해야 합니다.
+        self.assertEqual(response.status_code, 204)
+        # 삭제가 이루어진 후 데이터베이스에 남아 있는 작성내역의 갯수는 1개여야 합니다.
+        self.assertEqual(1, AccountBookHistory.objects.count())
+
+    def test_geumsuJWTDetailDeleteRequest_should_fail(self):
+        """금수의 JWT 로 철수의 작성내역 삭제 요청을 하면, 실패해야 합니다."""
+        # 철수가 작성한 작성내역 리소스(철수가 아이스크림을 사먹음) 를 나타내는 URL 정의
+        self.url = reverse(
+            "AccountBookHistory-detail", kwargs={"pk": 1, "history_pk": "1"}
+        )
+        access_token = str(RefreshToken.for_user(self.geumsu).access_token)
+        response = self.client.delete(
+            f"{self.url}",
+            HTTP_AUTHORIZATION="Bearer {}".format(access_token),
+            content_type="application/json",
+        )
+        # 철수의 인증 정보와 URL 로 수행되어진 요청은 실패해야 합니다.
         self.assertEqual(response.status_code, 403)
