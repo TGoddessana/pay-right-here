@@ -259,7 +259,7 @@ class AccountBookHistoryListTest(APITestCase):
         # 그리고 작성내역이 성공적으로 생성되었다면 모든 작성내역의 갯수는 최종적으로 3개여야 합니다.
         self.assertEqual(3, AccountBookHistory.objects.count())
 
-    def test_geumsuJWTListCreateRequest_should_success(self):
+    def test_geumsuJWTListCreateRequest_should_fail(self):
         """금수의 JWT 로 철수의 가계부에 작성내역 생성 요청을 하면, 실패해야 합니다."""
         # 철수 작성한 가계부 리소스(철수의 가계부 1) 를 나타내는 URL 정의
         self.url = reverse("AccountBookHistory-list", kwargs={"pk": 1})
