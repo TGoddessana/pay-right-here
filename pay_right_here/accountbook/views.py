@@ -1,13 +1,20 @@
+from django.shortcuts import redirect
+from django.http import HttpResponseNotFound
+from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
+
+from config.settings.development import REDIS_CLIENT, REDIS_EXPIRATION_TIME
 from pay_right_here.accountbook.models import AccountBook, AccountBookHistory
 from pay_right_here.accountbook.serializers import (
     AccountBookSerializer,
     AccountBookHistoryListSerializer,
 )
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework import generics
+from rest_framework import generics, status
 
 from pay_right_here.accountbook.permissions import AccountBookHistoryPermission
+from pay_right_here.accountbook.utils import generate_short_code
 
 
 class AccountBookListAPIView(generics.ListCreateAPIView):
@@ -78,3 +85,37 @@ class AccountBookHistoryDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
         return AccountBookHistory.objects.filter(accountbook_id=accountbook_id).filter(
             accountbook__user_id=user_id
         )
+
+
+@api_view(["GET"])
+def shorten_url(request, *args, **kwargs):
+    """단축 URL 생성을 처리하는 view 입니다."""
+    url = request.GET.get("url", None)
+    if not url:
+        return Response(
+            {"error": "No URL provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    shortened_url = REDIS_CLIENT.get(url)
+    if shortened_url:
+        REDIS_CLIENT.expire(url, REDIS_EXPIRATION_TIME)
+        REDIS_CLIENT.expire(shortened_url.decode("utf-8"), REDIS_EXPIRATION_TIME)
+        return Response({"shortened_url": shortened_url.decode("utf-8")})
+    short_code = generate_short_code()
+    while REDIS_CLIENT.get(short_code):
+        short_code = generate_short_code()
+    REDIS_CLIENT.set(url, short_code)
+    REDIS_CLIENT.expire(url, REDIS_EXPIRATION_TIME)
+    REDIS_CLIENT.set(short_code, url)
+    REDIS_CLIENT.expire(short_code, REDIS_EXPIRATION_TIME)
+
+    return Response({"shortened_url": short_code})
+
+
+def short_url_redirect(request, short_code):
+    """단축 URL 로 접근 시, 원래의 url로 redirect 시켜주는 view 입니다."""
+    original_url = REDIS_CLIENT.get(short_code.encode())
+    if original_url:
+        original_url = original_url.decode()
+        return redirect(original_url)
+    else:
+        return HttpResponseNotFound("Short URL not found")
