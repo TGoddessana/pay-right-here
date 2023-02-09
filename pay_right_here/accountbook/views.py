@@ -58,3 +58,23 @@ class AccountBookHistoryListAPIView(generics.ListCreateAPIView):
         return AccountBookHistory.objects.filter(accountbook_id=accountbook_id).filter(
             accountbook__user_id=user_id
         )
+
+
+class AccountBookHistoryDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    """가계부 작성내역 상세에 대한 View 입니다."""
+
+    lookup_url_kwarg = "history_pk"
+    permission_classes = [
+        AccountBookHistoryPermission,
+    ]
+    serializer_class = AccountBookHistoryListSerializer
+
+    def get_queryset(self):
+        user_id = JWTAuthentication().authenticate(request=self.request)[0].id
+        accountbook_id = self.kwargs.get("pk")
+        # 가계부 인스턴스가 존재하지 않으면, 404 Error
+        get_object_or_404(AccountBook, id=accountbook_id)
+
+        return AccountBookHistory.objects.filter(accountbook_id=accountbook_id).filter(
+            accountbook__user_id=user_id
+        )

@@ -12,4 +12,9 @@ urlpatterns = [
         views.AccountBookHistoryListAPIView.as_view(),
         name="AccountBookHistory-list",
     ),
+    path(
+        "<int:pk>/histories/<int:history_pk>/",
+        views.AccountBookHistoryDetailAPIView.as_view(),
+        name="AccountBookHistory-detail",
+    ),
 ]
