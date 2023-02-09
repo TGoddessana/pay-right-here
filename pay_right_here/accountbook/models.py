@@ -48,7 +48,7 @@ class AccountBookHistory(TimestampedModel):
         return f"<{self.memo} | {self.amount}>"
 
 
-class CopiedAccountBookHistoryModel(models.Model):
+class CopiedAccountBookHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     accountbook_history = models.JSONField(default=dict)
 
