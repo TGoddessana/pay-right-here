@@ -17,6 +17,11 @@ urlpatterns = [
         views.AccountBookHistoryDetailAPIView.as_view(),
         name="AccountBookHistory-detail",
     ),
+    path(
+        "copies/",
+        views.CopiedAccountBookHistoryListView.as_view(),
+        name="AccountBook-copies",
+    ),
     path("url-shortner/", views.shorten_url, name="URL-shortner"),
     path("<str:short_code>/", views.short_url_redirect, name="ShortURL-redirect"),
 ]
