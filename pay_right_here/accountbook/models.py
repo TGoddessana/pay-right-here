@@ -46,3 +46,11 @@ class AccountBookHistory(TimestampedModel):
 
     def __str__(self):
         return f"<{self.memo} | {self.amount}>"
+
+
+class CopiedAccountBookHistoryModel(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    accountbook_history = models.JSONField(default=dict)
+
+    def __str__(self):
+        return f"<{self.user}, 복제된 작성내역 {self.id}>"
