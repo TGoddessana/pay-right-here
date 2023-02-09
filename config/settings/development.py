@@ -1,3 +1,5 @@
+import redis
+
 from .default import *
 
 DEBUG = True
@@ -22,3 +24,7 @@ DATABASES = {
         "PORT": env("DB_PORT"),
     }
 }
+
+REDIS_CLIENT = redis.Redis(host="localhost", port=6379, db=0)
+
+REDIS_EXPIRATION_TIME = 10
