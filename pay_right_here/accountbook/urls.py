@@ -1,5 +1,4 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenBlacklistView
 
 from pay_right_here.accountbook import views
 
